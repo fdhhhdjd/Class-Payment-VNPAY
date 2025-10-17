@@ -1,0 +1,15 @@
+//Created by CTT
+
+extends layout
+
+block content
+    h3=title
+    div.table-responsive
+        form(action='querydr', method='POST')
+            div.form-group
+                label Mã giao dịch (vnp_TxnRef)
+                input.form-control(name='orderId' placeholder='txnRef')
+            div.form-group
+                label Thời gian tạo giao dịch (vnp_TransactionDate)
+                input.form-control(name='transDate', placeholder='yyyyMMddHHmmss')
+            button.btn.btn-default(type='submit') QueryDr

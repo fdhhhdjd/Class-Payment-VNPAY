@@ -1,0 +1,27 @@
+//Created by CTT
+
+extends layout
+
+block content
+    h3=title
+    div.table-responsive
+        form(action='refund', method='POST')
+            div.form-group
+                label Mã giao dịch (vnp_TxnRef):
+                input.form-control(name='orderId')
+            div.form-group
+                label Số tiền hoàn:
+                input.form-control(name='amount')
+            div.form-group
+                label Kiểu hoàn tiền (vnp_TransactionType):
+                select.form-control(name='transType')
+                    option(value='02') Hoàn toàn phần
+                    option(value='03') Hoàn một phần
+            div.form-group
+                label Thời gian tạo giao dịch (vnp_TransactionDate)
+                input.form-control(name='transDate', placeholder='yyyyMMddHHmmss')
+            div.form-group
+                label User thực hiện hoàn (vnp_CreateBy)
+                input.form-control(name='user')
+            button.btn.btn-default(type='submit') Refund
+    p&nbsp;

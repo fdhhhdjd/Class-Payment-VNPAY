@@ -1,0 +1,12 @@
+//
+   Created by vinhnt on 6/16/2017.
+
+extends layout
+
+block content
+    if code == "00"
+        p(style="text-align: center")  GD thành công
+    else
+        p(style="text-align: center; color: red") GD thất bại
+    p(style="text-align: center")
+        a.btn.btn-default(href='/order') Về danh sách

@@ -1,0 +1,38 @@
+//Created by CTT VNPAY
+
+extends layout
+
+block content
+    h3=title
+    div.table-responsive
+        form#createOrder(action='create_payment_url', method='POST')
+            div.form-group
+                label Số tiền
+                input.form-control#amount(name='amount', placeholder='Số tiền', value=amount)
+
+            div.form-group
+                label Chọn Phương thức thanh toán:
+                label.control-label
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="bankCode", id="defaultPaymentMethod", value="", checked="true")] Cổng thanh toán VNPAYQR
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="bankCode", id="vnpayqrPaymentMethod", value="VNPAYQR")] Thanh toán qua ứng dụng hỗ trợ VNPAYQR
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="bankCode", id="vnbankPaymentMethod", value="VNBANK")] Thanh toán qua ATM-Tài khoản ngân hàng nội địa
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="bankCode", id="intcardPaymentMethod", value="INTCARD")] Thanh toán qua thẻ quốc tế
+            div.form-group
+                label Ngôn ngữ
+                label.control-label
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="language", id="vnLanguage", value="vn", checked="true")] Tiếng việt
+                div.controls
+                label.radio-inline
+                #[input(type="radio", name="language", id="enLanguage", value="en")] Tiếng anh
+            button.btn.btn-default#btnPopup(type='submit') Thanh toán
+    p&nbsp;

@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    title=title
+    link(rel='stylesheet', href='/stylesheets/jumbotron-narrow.css')
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+  body
+    div.container
+      div.header.clearfix
+        ul.nav.nav-pills.pull-right
+          li(role="presentation").active
+            a(href='/order/create_payment_url') Tạo mới GD thanh toán
+          li(role="presentation").active
+            a(href='/order/querydr') API truy vấn kết quả thanh toán
+          li(role="presentation").active
+            a(href='/order/refund') API hoàn tiền giao dịch
+        h3.text-muted VNPAY DEMO
+      block content
+      footer.footer
+        p &copy; VNPAY #{new Date().getFullYear()}
