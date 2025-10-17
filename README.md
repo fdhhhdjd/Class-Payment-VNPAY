@@ -53,6 +53,61 @@ URL: https://sandbox.vnpayment.vn/apis/vnpay-demo/
 ## 11. Tài liệu API chính thức
 URL: https://sandbox.vnpayment.vn/apis/
 
+## 12. Luồng đi 
+
+```
+Frontend (browser)
+   |
+   | 1) Tạo yêu cầu thanh toán (POST /order/create_payment_url)
+   v
+Backend (your server)
+   - Sinh orderId (vnp_TxnRef) duy nhất, lưu DB (status = INIT)
+   - Tạo vnp_Params + tính vnp_SecureHash (HMAC-SHA512)
+   - Trả JSON { paymentUrl } cho frontend (AJAX)  OR redirect trực tiếp
+   |
+   | 2a) Frontend điều hướng người dùng -> paymentUrl (VNPAY)
+   v
+VNPAY (cổng thanh toán)
+   - Người dùng thực hiện thanh toán trên giao diện VNPAY
+   |
+   | 3a) VNPAY redirect browser -> vnp_ReturnUrl (user-facing)
+   v
+Backend vnp_ReturnUrl (GET)
+   - Nhận query params từ VNPAY (bao gồm vnp_SecureHash)
+   - Xác minh chữ ký (recreate signData + HMAC)
+   - Hiển thị trang kết quả cho user (không dùng làm nguồn truth)
+   |
+   | 3b) (Song song) VNPAY gọi IPN -> vnp_IpnUrl (server-to-server)
+   v
+Backend vnp_IpnUrl (GET/POST)
+   - Xác minh chữ ký
+   - Kiểm tra tồn tại order và amount
+   - Cập nhật DB: status = SUCCESS / FAILED (idempotent)
+   - Trả JSON { RspCode: "00", Message: "Success" } (nếu ok)
+   |
+   | 4) (Nếu cần) Backend gọi QueryDR để kiểm tra trực tiếp với VNPAY
+   v
+VNPAY API (merchant_webapi/api/transaction)
+   - Trả thông tin chi tiết về giao dịch
+   |
+   | 5) (Nếu yêu cầu) Refund API gọi tới VNPAY để hoàn tiền
+   v
+VNPAY API (refund)
+```
+Giải thích
+
+`Frontend → Backend (create_payment_url)`: frontend gửi số tiền + thông tin, backend tạo vnp_TxnRef, tính chữ ký, trả paymentUrl.
+
+`Frontend điều hướng tới VNPAY`: user điền OTP / thẻ / chọn ngân hàng trên trang VNPAY.
+
+`VNPAY → Return URL`: browser được redirect về vnp_ReturnUrl — chỉ để hiển thị kết quả cho user (không an toàn để tin tưởng duy nhất).
+
+`VNPAY → IPN (server-to-server)`: VNPAY gọi vnp_IpnUrl công khai để thông báo trạng thái thực tế; backend phải trả {RspCode:"00"} để xác nhận.
+
+`QueryDR`: khi cần kiểm tra chủ động (backup), backend gọi API querydr tới VNPAY để lấy trạng thái giao dịch.
+
+`Refund`: nếu cần trả tiền, backend gọi API refund của VNPAY với chữ ký tương ứng.
+
 ---
 
 # Ghi chú quan trọng
