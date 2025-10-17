@@ -53,7 +53,54 @@ URL: https://sandbox.vnpayment.vn/apis/vnpay-demo/
 ## 11. Tài liệu API chính thức
 URL: https://sandbox.vnpayment.vn/apis/
 
-## 12. Luồng đi 
+## 12. Minh hoạ 
+```
+┌─────────────┐
+│   User      │
+│ (Frontend)  │
+└─────┬───────┘
+      │ 1. Nhấn "Thanh toán"
+      ▼
+┌───────────────────────┐
+│   Backend (Server)    │
+│  /create_payment_url  │
+└─────┬─────────────────┘
+      │ 2. Tạo vnp_Params + ký SHA256
+      │    => Trả về paymentUrl
+      ▼
+┌──────────────┐
+│  Frontend    │
+└─────┬────────┘
+      │ 3. Redirect đến VNPay
+      ▼
+┌───────────────────────────┐
+│      VNPay Gateway        │
+│  (Giao diện thanh toán)   │
+└─────┬─────────────────────┘
+      │ 4. User nhập thông tin, thanh toán
+      │
+      │ Sau khi thanh toán:
+      │
+      ├──────────────┐
+      │              │
+      ▼              ▼
+┌────────────────┐   ┌────────────────────────┐
+│ vnp_ReturnUrl  │   │   vnp_IpnUrl (Backend) │
+│ (Frontend)      │   │  Server-to-Server     │
+│ User nhìn thấy │   │  XÁC NHẬN CHÍNH THỨC ✅│
+└─────┬──────────┘   └─────────────┬──────────┘
+      │                             │
+      │ 5. Hiển thị kết quả         │ 5'. Kiểm tra chữ ký,
+      │    (đẹp cho người dùng)     │     cập nhật đơn hàng
+      ▼                             ▼
+┌────────────┐              ┌────────────────┐
+│  User OK   │              │ Database /     │
+│  Done ✅   │              │ Update Order ✅│
+└────────────┘              └────────────────┘
+
+```
+
+## 13. Luồng đi 
 
 ```
 Frontend (browser)
