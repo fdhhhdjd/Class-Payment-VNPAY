@@ -1,5 +1,9 @@
 **# Hướng dẫn chạy demo thanh toán VNPay bằng NodeJS
 **
+
+## 0. Đây là sản phẩm 
+<img src="./assets/vnpay-demo.png" alt="QR Code ABBank" >
+
 ## 1. Cài đặt NodeJS
 Tải và cài đặt NodeJS tại: https://nodejs.org/en/
 
