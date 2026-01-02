@@ -2,137 +2,66 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <title>Demo VNPAY - Axios (Fixed)</title>
+  <title>VNPAY Premium Demo - Code Web Không Khó</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body{font-family:Arial;padding:20px;max-width:720px;margin:auto;}
-    label{display:block;margin-top:12px;}
-    input,select{padding:8px;width:100%;box-sizing:border-box;margin-top:6px;}
-    button{margin-top:16px;padding:10px 16px;}
-    .note{color:#666;font-size:13px}
-    #response-box{margin-top:14px;white-space:pre-wrap;background:#f8f8f8;border:1px solid #ddd;padding:10px;border-radius:6px;}
-    .loading {opacity:.6; pointer-events:none;}
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2>Thanh toán demo VNPAY (Axios)</h2>
-  <p class="note">Backend phải trả JSON `{ paymentUrl }` cho request AJAX. Nếu frontend khác origin, backend cần bật CORS.</p>
+  <div class="container">
+    <header class="branding-header">
+      <div class="brand-left">
+        <div class="logo-wrapper">
+          <img src="./logo.jpg" alt="Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/48x48?text=VNPAY'">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Twitter_Verified_Badge.svg" class="verified-badge">
+        </div>
+        <div class="brand-text">
+          <span class="channel-name">Code Web Không Khó</span>
+          <span class="brand-tagline">VNPAY Merchant Demo</span>
+        </div>
+      </div>
+      <div class="brand-right">
+        <span class="status-badge">SECURE</span>
+      </div>
+    </header>
 
-  <div>
-    <label>Số tiền (VND)
-      <input id="amount" value="10000" type="number" min="10000" />
-    </label>
+    <main class="card">
+      <h2 class="card-title">Thanh toán qua VNPAY</h2>
 
-    <label>BankCode (tùy chọn)
-      <input id="bankCode" placeholder="NCB" />
-    </label>
+      <div class="input-group">
+        <label>SỐ TIỀN CẦN THANH TOÁN</label>
+        <div class="input-wrapper">
+          <input id="amount" class="input-field" type="text" inputmode="numeric" value="10,000" />
+          <span class="currency-label">VND</span>
+        </div>
+      </div>
 
-    <label>Ngôn ngữ
-      <select id="language">
-        <option value="vn">vn</option>
-        <option value="en">en</option>
-      </select>
-    </label>
+      <div class="input-group">
+        <label>MÃ NGÂN HÀNG (BANK CODE)</label>
+        <input id="bankCode" class="input-field" placeholder="Ví dụ: NCB, VISA, VNPAYQR..." />
+      </div>
 
-    <button id="payBtn">Thanh toán</button>
+      <div class="input-group">
+        <label>NGÔN NGỮ HIỂN THỊ</label>
+        <div class="input-wrapper">
+          <select id="language" class="input-field">
+            <option value="vn">Tiếng Việt (VN)</option>
+            <option value="en">English (EN)</option>
+          </select>
+          <span style="position: absolute; right: 18px; pointer-events: none; color: #64748b;">▼</span>
+        </div>
+      </div>
+
+      <button id="payBtn" class="btn-pay">
+        <div class="loader"></div>
+        <span class="btn-text">Tiến hành thanh toán</span>
+      </button>
+
+      <div id="response-box">Trạng thái: Sẵn sàng thực hiện giao dịch</div>
+    </main>
   </div>
-
-  <div id="response-box">Trạng thái: Chưa thao tác</div>
   
-  <!-- axios CDN -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script>
-    (function(){
-      // chỉnh backendUrl cho đúng port (ví dụ 8888, 3000, ...)
-      const backendUrl = 'http://localhost:3000/order/create_payment_url';
-
-      const payBtn = document.getElementById('payBtn');
-      const respBox = document.getElementById('response-box');
-
-      function setLoading(loading) {
-        if (loading) {
-          payBtn.classList.add('loading');
-          payBtn.textContent = 'Đang xử lý...';
-        } else {
-          payBtn.classList.remove('loading');
-          payBtn.textContent = 'Thanh toán';
-        }
-      }
-
-      payBtn.addEventListener('click', async function(){
-        const amount = Number(document.getElementById('amount').value || 0);
-        if (!amount || amount < 10000) { alert('Nhập số tiền >=10000'); return; }
-
-        const payload = {
-          amount: amount,
-          bankCode: document.getElementById('bankCode').value || '',
-          language: document.getElementById('language').value || 'vn'
-        };
-
-        setLoading(true);
-        respBox.textContent = 'Gửi yêu cầu tới server...';
-
-        try {
-          // Gọi backend bằng axios, gắn header X-Requested-With để backend nhận đúng AJAX
-          const resp = await axios.post(backendUrl, payload, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            // withCredentials nếu cần cookie
-            // withCredentials: true
-          });
-
-          // Nếu backend trả JSON có paymentUrl -> redirect
-          if (resp.status === 200 && resp.data && resp.data.paymentUrl) {
-            respBox.textContent = 'Nhận paymentUrl từ server, redirect...';
-            // điều hướng toàn trang
-            window.location.href = resp.data.paymentUrl;
-            return;
-          }
-
-          // Một số backend có thể follow redirect nội bộ (302) dẫn tới response cuối là HTML (VNPAY page).
-          // Trong browser, axios/XHR có thể expose final URL ở resp.request.responseURL
-          const finalUrl = resp.request && resp.request.responseURL;
-          if (finalUrl && (finalUrl.includes('vnpayment.vn') || finalUrl.includes('vnpay'))) {
-            respBox.textContent = 'Server đã redirect tới cổng thanh toán, redirect now to: ' + finalUrl;
-            window.location.href = finalUrl;
-            return;
-          }
-
-          // Nếu backend trả dữ liệu khác (HTML or unexpected), hiển thị để debug
-          respBox.textContent = 'Không nhận được paymentUrl từ server. Response:\n' + JSON.stringify(resp.data || resp.statusText || resp, null, 2);
-          console.error('Unexpected response', resp);
-
-        } catch (err) {
-          // hiển thị lỗi chi tiết giúp debug (CORS / 500 / HTML error)
-          let msg = '';
-          if (err.response) {
-            // server trả về status (có thể HTML)
-            const body = err.response.data;
-            msg = 'Server trả lỗi HTTP ' + err.response.status + '\n';
-            // nếu body là HTML (string) show đoạn đầu để debug
-            if (typeof body === 'string' && body.trim().startsWith('<')) {
-              msg += 'Response body (HTML):\n' + body.substring(0, 800);
-            } else {
-              msg += 'Response body:\n' + JSON.stringify(body, null, 2);
-            }
-            console.error('Server response', err.response);
-          } else if (err.request) {
-            // request được gửi nhưng không có response (bị block / CORS)
-            msg = 'No response from server. Có thể bị CORS hoặc server down.\n' + err.message;
-            console.error('No response', err.request);
-          } else {
-            msg = 'Lỗi khi tạo request: ' + err.message;
-            console.error('Axios error', err);
-          }
-          respBox.textContent = msg;
-        } finally {
-          setLoading(false);
-        }
-      });
-    })();
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
